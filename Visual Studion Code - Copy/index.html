@@ -1,0 +1,854 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Prophetic Tower Christian Church in Mafikeng, South Africa. Join our services, submit prayer requests, and support our mission.">
+    <meta name="keywords" content="Prophetic Tower, Christian Church, Mafikeng, prayer requests, donations">
+    <title>Prophetic Tower Christian Church</title>
+    <style>
+        /* Reset default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #1c1e22;
+        }
+
+        /* Header */
+        header {
+            background-color: #5981f1;
+            color: rgb(255, 255, 255);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding-left: 1rem;
+        }
+
+        header img {
+            width: 130px;
+            height: 130px;
+            border-radius: 10%;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+
+        nav {
+            margin-top: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-size: 1.1rem;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Home Section */
+        #home {
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        #home h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #home p {
+            margin-bottom: 1rem;
+        }
+
+        /* About Us Section */
+        #about-us {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        #about-us h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #about-us img {
+            width: 300px;
+            height: 300px;
+            border-radius: 10%;
+            margin: 1rem 0;
+        }
+
+        #about-us ul li {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        /* Sermons Section */
+        #Sermons {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin-top: 2rem;
+        }
+
+        #Sermons h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Contact Us Section */
+        #contact-us {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin-top: 2rem;
+        }
+
+        #contact-us h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #contact-us p {
+            margin-bottom: 1rem;
+        }
+
+        /* Prayer Section */
+        #prayer {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin-top: 2rem;
+        }
+
+        #prayer h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #prayer p {
+            margin-bottom: 1rem;
+        }
+
+        .prayer-form {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .prayer-form button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #5981f1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .prayer-form button:hover {
+            background-color: #4567c1;
+        }
+
+        /* Give Section */
+        #give {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin-top: 2rem;
+        }
+
+        #give h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #give h3 {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        #give p {
+            margin-bottom: 1rem;
+        }
+
+        .bank-details {
+            list-style: none;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .bank-details li {
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            padding: 0.3rem 0.6rem;
+            background-color: #5981f1;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover {
+            background-color: #4567c1;
+        }
+
+        .copy-btn:focus {
+            outline: 2px solid #007bff;
+        }
+
+        /* Leadership Section */
+        #Leadership {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin-top: 2rem;
+        }
+
+        #Leadership h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #Leadership ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        #Leadership li {
+            margin: 0.5rem 0;
+        }
+
+        /* Privacy Section */
+        #privacy {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin-top: 2rem;
+        }
+
+        #privacy h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #privacy p {
+            margin-bottom: 1rem;
+        }
+
+        /* Smooth Transitions */
+        #home, #about-us, #Sermons, #contact-us, #prayer, #give, #Leadership, #privacy {
+            transition: opacity 0.3s ease;
+            opacity: 1;
+        }
+        #home[style*="display: none"], #about-us[style*="display: none"], #Sermons[style*="display: none"], #contact-us[style*="display: none"], #prayer[style*="display: none"], #give[style*="display: none"], #Leadership[style*="display: none"], #privacy[style*="display: none"] {
+            opacity: 0;
+        }
+
+        /* Image Scroller */
+        .image-scroller {
+            width: 100%;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .image-scroller-inner {
+            display: flex;
+            width: max-content;
+            animation: scroll 20s linear infinite;
+        }
+
+        .image-scroller img {
+            width: 400px;
+            height: 300px;
+            margin: 0 0.5rem;
+            object-fit: cover;
+            max-width: 100%;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Projects Section */
+        #projects {
+            padding: 2rem;
+        }
+
+        #projects h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .project-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-card p {
+            margin-bottom: 1rem;
+        }
+
+        .project-card a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .project-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: #00b7eb;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav a {
+                display: block;
+                margin: 0.5rem 0;
+            }
+
+            .prayer-form, .bank-details {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 0.9rem;
+            }
+
+            .image-scroller img {
+                width: 300px;
+                height: 225px;
+            }
+        }
+    </style>
+</head>
+<body id="top">
+    <header>
+        <div class="header-content">
+            <img src="logo.jpg" alt="Prophetic Tower Christian Church Logo">
+            <h1>Prophetic Tower Christian Church</h1>
+        </div>
+        <nav>
+            <a href="#top" onclick="hideSections(event)" aria-label="Go to Home">Home</a>
+            <span class="separator">|</span>
+            <a href="#about-us" onclick="toggleAboutUs(event)" aria-label="Learn About Us">About us</a>
+            <span class="separator">|</span>
+            <a href="#Sermons" onclick="toggleSermons(event)" aria-label="View Sermons">Sermons</a>
+            <span class="separator">|</span>
+            <a href="#contact-us" onclick="toggleContactUs(event)" aria-label="Contact Us">Contact us</a>
+            <span class="separator">|</span>
+            <a href="#prayer" onclick="togglePrayer(event)" aria-label="Submit Prayer Request">Prayer</a>
+            <span class="separator">|</span>
+            <a href="#Leadership" onclick="toggleLeadership(event)" aria-label="Meet Our Leadership">Leadership</a>
+            <span class="separator">|</span>
+            <a href="#give" onclick="toggleGive(event)" aria-label="View Donation Details">Give</a>
+        </nav>
+    </header>
+
+    <section id="home">
+        <h2>Welcome to Prophetic Tower Christian Church</h2>
+        <p>Join us in our mission to spread the gospel of Jesus Christ, our Lord and Saviour with Love and Faith. Explore our ministry, sermons, and community outreach programmes.</p>
+        <p>Services every Friday and Sunday. All are welcome.</p>
+        <a href="#contact-us" onclick="toggleContactUs(event)" style="display: inline-block; padding: 0.5rem 1rem; background-color: #5981f1; color: white; text-decoration: none; border-radius: 5px;" aria-label="Contact Us">Contact Us</a>
+    </section>
+
+    <section id="about-us">
+        <h2>About Us</h2>
+        <img src="PTCC.png" alt="PTCC Logo">
+        <p>Good day, this will show you all about the PTCC movement:</p>
+        <ul>
+            <li><strong>Background</strong>: The ministry started under the general overseer, Prophet Moses Kaira.</li>
+            <li><strong>Projects</strong>: Some of the projects undertaken by the ministry include giving back to the community.</li>
+            <li><strong>Goals</strong>: We envisage the ministry to create a lasting impact in the lives of the people.</li>
+        </ul>
+        <p>Feel free to join us every Friday and Sunday.</p>
+    </section>
+
+    <section id="Sermons">
+        <h2>Sermons</h2>
+        <img src="soon.png" alt="Coming Soon">
+        <p>Our sermons will be available soon. Stay tuned!</p>
+    </section>
+
+    <section id="contact-us">
+        <h2>Contact Us</h2>
+        <p>Reach out to us for inquiries, prayer requests, or to join our services.</p>
+        <p><strong>Email</strong>: <a href="mailto:Prophetictower1@gmail.com" rel="noopener">Prophetictower1@gmail.com</a></p>
+        <p><strong>Phone</strong>: +27 123 456 789 (Inquiries and Prayer Line)</p>
+        <p><strong>Address</strong>: Unit 15, Sunset Road, Mafikeng, South Africa</p>
+    </section>
+
+    <section id="prayer">
+        <h2>Prayer Request</h2>
+        <p>Submit your prayer request, and our ministry will stand with you in faith.</p>
+        <form action="https://formspree.io/f/your-form-id" method="post" class="prayer-form">
+            <input type="hidden" name="_subject" value="New Prayer Request from PTCC Website">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required placeholder="Enter your first name">
+            </div>
+            <div class="form-group">
+                <label for="surname">Surname:</label>
+                <input type="text" id="surname" name="surname" required placeholder="Enter your surname">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="country">Country:</label>
+                <select id="country" name="country" required>
+                    <option value="" disabled selected>Select your country</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="Kenya">Kenya</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="subject">Prayer Subject:</label>
+                <input type="text" id="subject" name="subject" required placeholder="Enter the subject of your prayer">
+            </div>
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required placeholder="Share your prayer request"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="confidentiality">Confidentiality:</label>
+                <select id="confidentiality" name="confidentiality" required>
+                    <option value="private">Keep my request private</option>
+                    <option value="share">Share anonymously with prayer team</option>
+                </select>
+            </div>
+            <p>By submitting this form, you agree to our <a href="#privacy" onclick="togglePrivacy(event)" aria-label="View Privacy Policy">Privacy Policy</a>.</p>
+            <button type="submit" aria-label="Submit Prayer Request">Submit Prayer Request</button>
+        </form>
+    </section>
+
+    <section id="give">
+        <h2>Give</h2>
+        <p>Your generous donations support the mission of Prophetic Tower Christian Church to spread the gospel and serve our community.</p>
+        <h3>Bank Details for Donations</h3>
+        <p>Please use the following bank details to make your donation (replace placeholders with actual details):</p>
+        <ul class="bank-details">
+            <li><strong>Bank Name</strong>: [Replace with Your Bank Name, e.g., Standard Bank] <button class="copy-btn" data-text="[Replace with Your Bank Name]" aria-label="Copy Bank Name">Copy</button></li>
+            <li><strong>Account Name</strong>: Prophetic Tower Christian Church <button class="copy-btn" data-text="Prophetic Tower Christian Church" aria-label="Copy Account Name">Copy</button></li>
+            <li><strong>Account Number</strong>: [Replace with Your Account Number, e.g., 987654321] <button class="copy-btn" data-text="[Replace with Your Account Number]" aria-label="Copy Account Number">Copy</button></li>
+            <li><strong>Branch Code</strong>: [Replace with Your Branch Code, e.g., 051001] <button class="copy-btn" data-text="[Replace with Your Branch Code]" aria-label="Copy Branch Code">Copy</button></li>
+            <li><strong>SWIFT Code</strong>: [Replace with Your SWIFT Code, e.g., SBZAZAJJ] <button class="copy-btn" data-text="[Replace with Your SWIFT Code]" aria-label="Copy SWIFT Code">Copy</button></li>
+            <li><strong>Bank Address</strong>: [Replace with Your Bank Address, e.g., 456 Sunset Road, Mafikeng, South Africa] <button class="copy-btn" data-text="[Replace with Your Bank Address]" aria-label="Copy Bank Address">Copy</button></li>
+        </ul>
+        <p><strong>Reference</strong>: Please include your name or "Donation" as the reference.</p>
+        <p>Thank you for your support! For inquiries, contact us at <a href="mailto:Prophetictower1@gmail.com" rel="noopener">Prophetictower1@gmail.com</a>.</p>
+    </section>
+
+    <section id="Leadership">
+        <h2>Leadership</h2>
+        <p>Our leadership team is dedicated to serving the community and spreading the gospel under the guidance of Prophet Moses Kaira.</p>
+        <ul>
+            <li><strong>Prophet Moses Kaira</strong>: General Overseer and Founder</li>
+            <li><strong>[Replace with Name]</strong>: [Replace with Role, e.g., Senior Pastor]</li>
+            <li><strong>[Replace with Name]</strong>: [Replace with Role, e.g., Prayer Coordinator]</li>
+        </ul>
+        <p>Contact us at <a href="mailto:Prophetictower1@gmail.com" rel="noopener">Prophetictower1@gmail.com</a> for more information.</p>
+    </section>
+
+    <section id="privacy">
+        <h2>Privacy Policy</h2>
+        <p>We respect your privacy and are committed to protecting your personal information. Information collected via our prayer request form (e.g., Name, Email) is used solely for ministry purposes, such as processing prayer requests and contacting you if permitted. We do not share your data with third parties except as required by law. For questions, contact <a href="mailto:Prophetictower1@gmail.com" rel="noopener">Prophetictower1@gmail.com</a>.</p>
+    </section>
+
+    <section>
+        <div class="image-scroller">
+            <div class="image-scroller-inner">
+                <img src="Prayer.jpg" alt="Prayer">
+                <img src="fire.jpg" alt="Fire">
+                <img src="sermon.jpg" alt="Sermon">
+                <img src="theme.jpg" alt="Theme">
+                <img src="congrigants.jpg" alt="Congregants">
+                <!-- Duplicate for seamless loop -->
+                <img src="Prayer.jpg" alt="Prayer">
+                <img src="fire.jpg" alt="Fire">
+                <img src="sermon.jpg" alt="Sermon">
+                <img src="theme.jpg" alt="Theme">
+                <img src="congrigants.jpg" alt="Congregants">
+            </div>
+        </div>
+    </section>
+
+    <section id="Gallery">
+        <h2>Gallery</h2>
+        <div class="project-grid">
+            <div class="project-card">
+                <h3>Testimonies</h3>
+                <p>Countless testimonies by believers on what God has done through the ministry.</p>
+                <a href="#" aria-label="View Testimonies">View Testimonies</a>
+            </div>
+            <div class="project-card">
+                <h3>Events</h3>
+                <p>Get a glimpse of upcoming events at the PTCC.</p>
+                <a href="#" aria-label="View Events">View Events</a>
+            </div>
+            <div class="project-card">
+                <h3>Prayer Requests</h3>
+                <p>If in need of prayer, fill in the form below.</p>
+                <a href="#prayer" onclick="togglePrayer(event)" aria-label="Submit Prayer Request">Click here</a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <p>Support our mission on our <a href="#give" onclick="toggleGive(event)" aria-label="View Donation Details">Give page</a>.</p>
+        <p>Follow us on <a href="https://www.facebook.com/profile.php?id=100071948755495" target="_blank" rel="noopener" aria-label="Visit our Facebook page">Facebook</a> | <a href="https://www.youtube.com/@Prophetictower-x2q" target="_blank" rel="noopener" aria-label="Visit our YouTube channel">YouTube</a></p>
+        <p><a href="#privacy" onclick="togglePrivacy(event)" aria-label="View Privacy Policy">Privacy Policy</a></p>
+    </footer>
+
+    <script>
+        function toggleAboutUs(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'block';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'none';
+        }
+
+        function toggleSermons(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'block';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'none';
+        }
+
+        function toggleContactUs(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'block';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'none';
+        }
+
+        function togglePrayer(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'block';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'none';
+        }
+
+        function toggleGive(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'block';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'none';
+        }
+
+        function toggleLeadership(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'block';
+            privacySection.style.display = 'none';
+        }
+
+        function togglePrivacy(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'none';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'block';
+        }
+
+        function hideSections(event) {
+            event.preventDefault();
+            const homeSection = document.getElementById('home');
+            const aboutUsSection = document.getElementById('about-us');
+            const sermonsSection = document.getElementById('Sermons');
+            const contactUsSection = document.getElementById('contact-us');
+            const prayerSection = document.getElementById('prayer');
+            const giveSection = document.getElementById('give');
+            const leadershipSection = document.getElementById('Leadership');
+            const privacySection = document.getElementById('privacy');
+            if (!homeSection || !aboutUsSection || !sermonsSection || !contactUsSection || !prayerSection || !giveSection || !leadershipSection || !privacySection) {
+                console.error('Section not found');
+                return;
+            }
+            homeSection.style.display = 'block';
+            aboutUsSection.style.display = 'none';
+            sermonsSection.style.display = 'none';
+            contactUsSection.style.display = 'none';
+            prayerSection.style.display = 'none';
+            giveSection.style.display = 'none';
+            leadershipSection.style.display = 'none';
+            privacySection.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Copy to clipboard functionality
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('copy-btn')) {
+                const text = event.target.getAttribute('data-text');
+                navigator.clipboard.writeText(text).then(() => {
+                    event.target.textContent = 'Copied!';
+                    setTimeout(() => {
+                        event.target.textContent = 'Copy';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
